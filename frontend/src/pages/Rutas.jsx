@@ -19,8 +19,11 @@ export default function Rutas() {
     setLoading(true)
     try {
       const res = await axios.get(`${API_BASE}/camiones`)
-      setCamiones(res.data)
-    } catch (e) { console.error(e) }
+      setCamiones(Array.isArray(res.data) ? res.data : [])
+    } catch (e) {
+      console.error('Error cargando camiones:', e)
+      setCamiones([])
+    }
     setLoading(false)
   }
 
@@ -111,13 +114,19 @@ export default function Rutas() {
         </div>
       )}
 
-      {/* SIN RUTA */}
-      {camionSinRuta.length > 0 && camionesConRuta.length === 0 && !loading && (
+      {/* ERROR DE CONEXION / SIN RUTA */}
+      {camiones.length === 0 && !loading && (
         <div className="empty-state-large">
-          <Zap size={64} style={{ color: 'var(--primary)', marginBottom: '1rem' }} />
-          <p>No hay rutas generadas para hoy.</p>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Presiona "Generar Rutas Óptimas" para distribuir los 30 camiones en los puntos críticos de Santa Cruz.
+          <AlertTriangle size={56} style={{ color: '#f59e0b', marginBottom: '1rem' }} />
+          <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Backend no conectado</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+            La API no responde en:<br />
+            <code style={{ background: 'rgba(255,255,255,0.08)', padding: '0.2rem 0.5rem', borderRadius: '0.4rem', fontSize: '0.8rem' }}>
+              {API_BASE}
+            </code>
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+            Verifica en Vercel → proyecto backend → <b>Environment Variables</b> → <b>DATABASE_URL</b>
           </p>
         </div>
       )}

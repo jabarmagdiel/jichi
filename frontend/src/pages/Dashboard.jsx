@@ -40,13 +40,16 @@ export default function Dashboard() {
   const [contenedores, setContenedores] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const [apiError, setApiError] = useState(false)
+
   useEffect(() => {
     Promise.all([
-      axios.get(`${API_BASE}/stats`),
-      axios.get(`${API_BASE}/contenedores`)
+      axios.get(`${API_BASE}/stats`).catch(() => ({ data: null })),
+      axios.get(`${API_BASE}/contenedores`).catch(() => ({ data: [] }))
     ]).then(([s, c]) => {
+      if (!s.data && (!c.data || c.data.length === 0)) setApiError(true)
       setStats(s.data)
-      setContenedores(c.data)
+      setContenedores(Array.isArray(c.data) ? c.data : [])
     }).finally(() => setLoading(false))
   }, [])
 
@@ -56,6 +59,20 @@ export default function Dashboard() {
         <h2 className="page-title">Dashboard General</h2>
         <span className="page-sub">Santa Cruz de la Sierra — {new Date().toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
       </div>
+
+      {/* BANNER ERROR DE CONEXION */}
+      {apiError && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '0.85rem 1rem', marginBottom: '1.25rem',
+          background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+          borderRadius: '0.75rem', fontSize: '0.875rem', color: '#fca5a5'
+        }}>
+          <AlertTriangle size={16} />
+          No se puede conectar al backend (<code style={{background:'rgba(255,255,255,0.08)', padding:'0.1rem 0.4rem', borderRadius:'0.3rem'}}>{API_BASE}</code>).
+          Verifica que la variable <b>VITE_API_BASE</b> esté configurada en Vercel.
+        </div>
+      )}
 
       {/* STATS */}
       <div className="stats-grid">

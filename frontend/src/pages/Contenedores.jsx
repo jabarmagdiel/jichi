@@ -24,8 +24,13 @@ export default function Contenedores() {
 
   const fetchContenedores = async () => {
     setLoading(true)
-    const res = await axios.get(`${API_BASE}/contenedores`)
-    setContenedores(res.data)
+    try {
+      const res = await axios.get(`${API_BASE}/contenedores`)
+      setContenedores(Array.isArray(res.data) ? res.data : [])
+    } catch (e) {
+      console.error('Error cargando contenedores:', e)
+      setContenedores([])
+    }
     setLoading(false)
   }
 

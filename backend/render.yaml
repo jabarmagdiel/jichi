@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: jichi-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://postgres.uvfigwlruvulvwjyppxa:70486379Josemagdiel@aws-1-us-west-2.pooler.supabase.com:6543/postgres
